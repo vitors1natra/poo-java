@@ -6,13 +6,11 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import application.Main;
-import gui.util.Alerts;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
@@ -37,6 +35,7 @@ public class MainViewController implements Initializable{
 		});
 	}
 	
+	
 	@FXML
 	public void onMenuItemProductsAction() {
 		System.out.println("itemproduto");
@@ -49,13 +48,13 @@ public class MainViewController implements Initializable{
 	
 	
 	@Override
-	public void initialize(URL url, ResourceBundle rb) {
+	public void initialize(URL uri, ResourceBundle rb) {
 		
 	}
 
-	private synchronized <T> void loadView(String AbsolutName, Consumer<T> initializingAction) {
+	private synchronized <T> void loadView(String absolutName, Consumer<T> initializingAction) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource(AbsolutName));
+			FXMLLoader loader = new FXMLLoader(getClass().getResource(absolutName));
 			VBox newVBox = loader.load();
 			
 			Scene mainScene = Main.getMainSecene();
@@ -70,7 +69,8 @@ public class MainViewController implements Initializable{
 			initializingAction.accept(controller);
 		}
 		catch(IOException e) {
-			Alerts.showAlert("IO Exception", "Erro ao carregar a view", e.getMessage(), AlertType.ERROR);
+			e.printStackTrace();
+			//Alerts.showAlert("IO Exception", "Erro ao carregar a view", e.getMessage(), AlertType.ERROR);
 		}
 	}
 
