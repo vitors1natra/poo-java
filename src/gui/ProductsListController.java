@@ -2,6 +2,7 @@ package gui;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -29,41 +30,52 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import model.entities.Seller;
+import model.entities.Products;
+import model.services.ProductsService;
 import model.services.SellerService;
 
-public class SellerListController implements Initializable, DataChangeListener	 {
+public class ProductsListController implements Initializable, DataChangeListener	 {
 	
-	private SellerService service;
-	
-	@FXML
-	private TableView<Seller> tableViewSeller;
+	private ProductsService service;
 	
 	@FXML
-	private TableColumn<Seller, Integer> tableColumnId;
+	private TableView<Products> tableViewProducts;
 	
 	@FXML
-	private TableColumn<Seller, String> tableColumnName;
+	private TableColumn<Products, Integer> tableColumnId;
 	
 	@FXML
-	private TableColumn<Seller, Seller> tableColumnEDIT;
+	private TableColumn<Products, String> tableColumnName;
 	
 	@FXML
-	private TableColumn<Seller, Seller> tableColumnREMOVE;
+	private TableColumn<Products, String> tableColumnCategory;
 	
+	@FXML
+	private TableColumn<Products, Date> tableColumnReleaseDate;
+	
+	@FXML
+	private TableColumn<Products, Double> tableColumnPrice;
+	
+	@FXML
+	private TableColumn<Products, Products> tableColumnEDIT;
+	
+	@FXML
+	private TableColumn<Products, Products> tableColumnREMOVE;
+	
+
 	@FXML
 	private Button btNew;
 	
-	private ObservableList<Seller> obsList;
+	private ObservableList<Products> obsList;
 	
 	@FXML
 	public void onBtNewAction(ActionEvent event) {
 		Stage parentStage = Utils.currentStage(event);
-		Seller obj = new Seller();
-		createDialogForm(obj, "/gui/SellerForm.fxml", parentStage);
+		Products obj = new Products();
+		createDialogForm(obj, "/gui/ProductsForm.fxml", parentStage);
 	}
 	
-	public void setSellerService(SellerService service) {
+	public void setProductsService(ProductsService service) {
 		this.service = service;
 	}
 	
@@ -75,9 +87,15 @@ public class SellerListController implements Initializable, DataChangeListener	 
 	private void intializeNodes() {
 		tableColumnId.setCellValueFactory(new PropertyValueFactory<>("id"));
 		tableColumnName.setCellValueFactory(new PropertyValueFactory<>("name"));
+		tableColumnCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
+		tableColumnReleaseDate.setCellValueFactory(new PropertyValueFactory<>("releaseDate"));
+		Utils.formatTableColumnDate(tableColumnReleaseDate, "dd/MM/yyyy");
+		tableColumnPrice.setCellValueFactory(new PropertyValueFactory<>("price"));
+		Utils.formatTableColumnDouble(tableColumnPrice, 2);
+
 		
 		Stage stage = (Stage) Main.getMainSecene().getWindow();
-		tableViewSeller.prefHeightProperty().bind(stage.heightProperty());
+		tableViewProducts.prefHeightProperty().bind(stage.heightProperty());
 		
 	}
 	
@@ -85,21 +103,22 @@ public class SellerListController implements Initializable, DataChangeListener	 
 		if (service == null) {
 			throw new IllegalStateException("Servico nulo");
 		}
-		List<Seller> list = service.findAll();
+		List<Products> list = service.findAll();
 		obsList = FXCollections.observableArrayList(list);
-		tableViewSeller.setItems(obsList);
+		tableViewProducts.setItems(obsList);
 		initEditButtons();
 		initRemoveButtons();
 	}
 	
-	private void createDialogForm(Seller obj, String absoluteName, Stage parentStage) {
+	private void createDialogForm(Products obj, String absoluteName, Stage parentStage) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			Pane pane = loader.load();
 			
-			SellerFormController controller = loader.getController();
-			controller.setSeller(obj);
-			controller.setSellerService(new SellerService());
+			ProductsFormController controller = loader.getController();
+			controller.setProducts(obj);
+			controller.setServices(new ProductsService(), new SellerService());
+			controller.loadAssociatedObjects();
 			controller.subscribeDataChangeListener(this);
 			controller.updateFormData();
 			
@@ -127,11 +146,11 @@ public class SellerListController implements Initializable, DataChangeListener	 
 	
 	private void initEditButtons() {
 		tableColumnEDIT.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-		tableColumnEDIT.setCellFactory(param -> new TableCell<Seller, Seller>() {
+		tableColumnEDIT.setCellFactory(param -> new TableCell<Products, Products>() {
 			private final Button button = new Button("editar");
 			
 			@Override
-			protected void updateItem(Seller obj, boolean empty) {
+			protected void updateItem(Products obj, boolean empty) {
 				super.updateItem(obj, empty);
 				
 				if (obj == null) {
@@ -141,7 +160,7 @@ public class SellerListController implements Initializable, DataChangeListener	 
 				
 				setGraphic(button);
 				button.setOnAction(event -> createDialogForm(
-						obj, "/gui/SellerForm.fxml", Utils.currentStage(event)));
+						obj, "/gui/ProductsForm.fxml", Utils.currentStage(event)));
 			}
 	
 	});
@@ -149,11 +168,11 @@ public class SellerListController implements Initializable, DataChangeListener	 
 	
 	private void initRemoveButtons() {
 		tableColumnREMOVE.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
-		tableColumnREMOVE.setCellFactory(param -> new TableCell<Seller, Seller>() {
+		tableColumnREMOVE.setCellFactory(param -> new TableCell<Products, Products>() {
 			private final Button button = new Button("Remove");
 			
 			@Override
-			protected void updateItem(Seller obj, boolean empty) {
+			protected void updateItem(Products obj, boolean empty) {
 				super.updateItem(obj, empty);
 				
 				if (obj == null) {
@@ -169,7 +188,7 @@ public class SellerListController implements Initializable, DataChangeListener	 
   
 	}
 
-	private void removeEntity(Seller obj) {
+	private void removeEntity(Products obj) {
 		Optional<ButtonType> result = Alerts.showConformation("Confirmar", "Tem certeaza que quer deletar?");
 		
 		if (result.get() == ButtonType.OK) {

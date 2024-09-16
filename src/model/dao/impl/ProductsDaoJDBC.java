@@ -141,8 +141,8 @@ public class ProductsDaoJDBC implements ProductsDao {
 		obj.setId(rs.getInt("Id"));
 		obj.setName(rs.getString("Name"));
 		obj.setCategory(rs.getString("Category"));
+		obj.setReleaseDate(new java.util.Date(rs.getTimestamp("ReleaseDate").getTime()));
 		obj.setPrice(rs.getDouble("Price"));
-		obj.setReleaseDate(rs.getDate("ReleaseDate"));
 		obj.setSeller(dep);
 		return obj;
 	}
@@ -150,7 +150,7 @@ public class ProductsDaoJDBC implements ProductsDao {
 	private Seller instantiateSeller(ResultSet rs) throws SQLException {
 		Seller dep = new Seller();
 		dep.setId(rs.getInt("SellerId"));
-		dep.setName(rs.getString("DepName"));
+		dep.setName(rs.getString("SelName"));
 		return dep;
 	}
 
@@ -199,7 +199,7 @@ public class ProductsDaoJDBC implements ProductsDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT products.*,seller.Name as DepName "
+					"SELECT products.*,seller.Name as SelName "
 					+ "FROM products INNER JOIN seller "
 					+ "ON products.SellerId = seller.Id "
 					+ "WHERE SellerId = ? "

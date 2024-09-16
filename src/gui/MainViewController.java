@@ -6,14 +6,17 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 import application.Main;
+import gui.util.Alerts;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import model.services.ProductsService;
 import model.services.SellerService;
 
 public class MainViewController implements Initializable{
@@ -38,7 +41,10 @@ public class MainViewController implements Initializable{
 	
 	@FXML
 	public void onMenuItemProductsAction() {
-		System.out.println("itemproduto");
+		loadView("/gui/ProductsList.fxml", (ProductsListController controller) -> {
+			controller.setProductsService(new ProductsService());
+			controller.updateTableView();
+		});
 	}
 	
 	@FXML
@@ -70,7 +76,7 @@ public class MainViewController implements Initializable{
 		}
 		catch(IOException e) {
 			e.printStackTrace();
-			//Alerts.showAlert("IO Exception", "Erro ao carregar a view", e.getMessage(), AlertType.ERROR);
+			Alerts.showAlert("IO Exception", "Erro ao carregar a view", e.getMessage(), AlertType.ERROR);
 		}
 	}
 
