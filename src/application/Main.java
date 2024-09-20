@@ -22,6 +22,7 @@ public class Main extends Application {
 			scrollPane.setFitToWidth(true);
 			
 			mainScene = new Scene(scrollPane);
+			//mainScene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(mainScene);
 			primaryStage.setTitle("Administrador de estoque e colaboradores");
 			primaryStage.show();

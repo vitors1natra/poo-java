@@ -29,7 +29,7 @@ public class ProductsDaoJDBC implements ProductsDao {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(
-					"INSERT INTO seller "
+					"INSERT INTO products "
 					+ "(Name, Category, ReleaseDate, Price, SellerId) "
 					+ "VALUES "
 					+ "(?, ?, ?, ?, ?)",
@@ -68,7 +68,7 @@ public class ProductsDaoJDBC implements ProductsDao {
 		PreparedStatement st = null;
 		try {
 			st = conn.prepareStatement(
-					"UPDATE seller "
+					"UPDATE Products "
 					+ "SET Name = ?, Category = ?, ReleaseDate = ?, Price = ?, SellerId = ? "
 					+ "WHERE Id = ?");
 			
@@ -121,8 +121,8 @@ public class ProductsDaoJDBC implements ProductsDao {
 			st.setInt(1, id);
 			rs = st.executeQuery();
 			if (rs.next()) {
-				Seller dep = instantiateSeller(rs);
-				Products obj = instantiateProducts(rs, dep);
+				Seller sel = instantiateSeller(rs);
+				Products obj = instantiateProducts(rs, sel);
 				return obj;
 			}
 			return null;
@@ -136,22 +136,22 @@ public class ProductsDaoJDBC implements ProductsDao {
 		}
 	}
 
-	private Products instantiateProducts(ResultSet rs, Seller dep) throws SQLException {
+	private Products instantiateProducts(ResultSet rs, Seller sel) throws SQLException {
 		Products obj = new Products();
 		obj.setId(rs.getInt("Id"));
 		obj.setName(rs.getString("Name"));
 		obj.setCategory(rs.getString("Category"));
 		obj.setReleaseDate(new java.util.Date(rs.getTimestamp("ReleaseDate").getTime()));
 		obj.setPrice(rs.getDouble("Price"));
-		obj.setSeller(dep);
+		obj.setSeller(sel);
 		return obj;
 	}
 
 	private Seller instantiateSeller(ResultSet rs) throws SQLException {
-		Seller dep = new Seller();
-		dep.setId(rs.getInt("SellerId"));
-		dep.setName(rs.getString("SelName"));
-		return dep;
+		Seller sel = new Seller();
+		sel.setId(rs.getInt("SellerId"));
+		sel.setName(rs.getString("SelName"));
+		return sel;
 	}
 
 	@Override
@@ -172,14 +172,14 @@ public class ProductsDaoJDBC implements ProductsDao {
 			
 			while (rs.next()) {
 				
-				Seller dep = map.get(rs.getInt("SellerId"));
+				Seller sel = map.get(rs.getInt("SellerId"));
 				
-				if (dep == null) {
-					dep = instantiateSeller(rs);
-					map.put(rs.getInt("SellerId"), dep);
+				if (sel == null) {
+					sel = instantiateSeller(rs);
+					map.put(rs.getInt("SellerId"), sel);
 				}
 				
-				Products obj = instantiateProducts(rs, dep);
+				Products obj = instantiateProducts(rs, sel);
 				list.add(obj);
 			}
 			return list;
@@ -194,7 +194,7 @@ public class ProductsDaoJDBC implements ProductsDao {
 	}
 
 	@Override
-	public List<Products> findBySeller(Seller department) {
+	public List<Products> findBySeller(Seller seller) {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
@@ -205,7 +205,7 @@ public class ProductsDaoJDBC implements ProductsDao {
 					+ "WHERE SellerId = ? "
 					+ "ORDER BY Name");
 			
-			st.setInt(1, department.getId());
+			st.setInt(1, seller.getId());
 			
 			rs = st.executeQuery();
 			
@@ -214,14 +214,14 @@ public class ProductsDaoJDBC implements ProductsDao {
 			
 			while (rs.next()) {
 				
-				Seller dep = map.get(rs.getInt("SellerId"));
+				Seller sel = map.get(rs.getInt("SellerId"));
 				
-				if (dep == null) {
-					dep = instantiateSeller(rs);
-					map.put(rs.getInt("SellerId"), dep);
+				if (sel == null) {
+					sel = instantiateSeller(rs);
+					map.put(rs.getInt("SellerId"), sel);
 				}
 				
-				Products obj = instantiateProducts(rs, dep);
+				Products obj = instantiateProducts(rs, sel);
 				list.add(obj);
 			}
 			return list;
